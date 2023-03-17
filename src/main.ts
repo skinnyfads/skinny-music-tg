@@ -20,11 +20,13 @@ if (!token) {
 function editMessageText(message: Message.TextMessage, newText: string | FmtString) {
   return app.telegram.editMessageText(message.chat.id, message.message_id, undefined, newText);
 }
+interface ModifyTask {
+  type: "modify";
+  name: "changetitle" | "changepicture" | "changeartist";
+  audio: Audio;
+}
 interface TaskManager {
-  [userId: number]: {
-    name: "changetitle" | "changepicture" | "changeartist";
-    audio: Audio;
-  };
+  [userId: number]: ModifyTask;
 }
 const app = new Telegraf(token);
 const taskManager: TaskManager = {};
@@ -97,6 +99,7 @@ app.command("changetitle", async (ctx) => {
     const audio = message.reply_to_message.audio;
 
     taskManager[userId] = {
+      type: "modify",
       name: "changetitle",
       audio,
     };
@@ -113,6 +116,7 @@ app.command("changepicture", async (ctx) => {
     const audio = message.reply_to_message.audio;
 
     taskManager[userId] = {
+      type: "modify",
       name: "changepicture",
       audio,
     };
@@ -129,6 +133,7 @@ app.command("changeartist", async (ctx) => {
     const audio = message.reply_to_message.audio;
 
     taskManager[userId] = {
+      type: "modify",
       name: "changeartist",
       audio,
     };
