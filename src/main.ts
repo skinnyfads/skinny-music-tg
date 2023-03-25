@@ -57,35 +57,24 @@ app.command(["r", "download"], async (ctx) => {
     await editMessageText(r, code`Searching ${query}..`);
 
     const result = await spotifyds.searchTrack(query);
-    const artist = result.artists.items.map((artist) => artist.profile.name);
-    const ytResult = await spotifyds.getTrackInfo(result.name, artist);
+    const track = result.items[0].item.data;
+    const artists = track.artists.items.map((artist) => artist.profile.name);
+    const thumbnailUrl = track.albumOfTrack.coverArt.sources[0].url;
 
     await editMessageText(r, code`Ok wait a sec`);
-    const download = spotifyds.downloadTrack(ytResult.name, ytResult.youtubeId!, "musics");
 
-    download.on("progress", async (chunkLength, downloaded, total) => {
-      sendProgress(ctx.telegram, r, chunkLength, downloaded, total, artist[0], result.name);
+    const filePath = await spotifyds.downloadTrack(track, (chunkLength, downloaded, total) => {
+      sendProgress(ctx.telegram, r, chunkLength, downloaded, total, artists[0], track.name);
     });
-    download.on("finish", async (filePath) => {
-      try {
-        await editMessageText(r, code`Sending ${result.artists.items[0].profile.name} - ${result.name}`);
+    await editMessageText(r, code`Sending ${artists[0]} - ${track.name}`);
 
-        await app.telegram.sendAudio(ctx.chat.id, Input.fromLocalFile(filePath), {
-          performer: result.artists.items[0].profile.name,
-          title: result.name,
-          thumb: { url: ytResult.thumbnailUrl! },
-          duration: ytResult.duration?.totalSeconds,
-        });
-        await app.telegram.deleteMessage(r.chat.id, r.message_id);
-      } catch (err) {
-        console.log(err);
-
-        if (err instanceof TelegramError) {
-          return ctx.reply(err.message);
-        }
-      }
+    await app.telegram.sendAudio(ctx.chat.id, Input.fromLocalFile(filePath), {
+      performer: artists[0],
+      title: track.name,
+      thumb: { url: thumbnailUrl },
+      duration: track.duration.totalMilliseconds / 1000,
     });
-    download.on("error", console.log);
+    await app.telegram.deleteMessage(r.chat.id, r.message_id);
   } catch (err) {
     console.log(err);
     return ctx.reply((err as any).message);
