@@ -10,6 +10,7 @@ import modifySong from "./fns/modifySong.js";
 import sendProgress from "./fns/sendProgress.js";
 import "dotenv/config";
 import getCommand from "./fns/getCommand.js";
+import getMatchedMusic from "./fns/getMatchedMusic.js";
 
 const env = process.env;
 const token = env.BOT_TOKEN;
@@ -57,7 +58,7 @@ app.command(["r", "download"], async (ctx) => {
     await editMessageText(r, code`Searching ${query}..`);
 
     const result = await spotifyds.searchTrack(query);
-    const track = result.items[0].item.data;
+    const track = getMatchedMusic(result, query);
     const artists = track.artists.items.map((artist) => artist.profile.name);
     const thumbnailUrl = track.albumOfTrack.coverArt.sources[0].url;
 
