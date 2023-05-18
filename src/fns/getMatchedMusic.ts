@@ -41,9 +41,13 @@ function getSimilarity(stringX: string, stringY: string) {
   }
   return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength.toFixed(1));
 }
-function getMatchedMusic(result: TracksV2, query: string) {
-  const similarities = result.items.map((item) => {
-    const similarity = getSimilarity(item.item.data.name, query);
+function getMatchedMusic(searchResult: TracksV2, query: string) {
+  const similarities = searchResult.items.map((item) => {
+    const trackResult = item.item.data;
+    const trackResultArtists = trackResult.artists.items.map((item) => item.profile.name);
+    const result = trackResult.name + " " + trackResultArtists.join(" ");
+    const similarity = getSimilarity(result, query);
+
     return { item, similarity };
   });
   similarities.sort((x, y) => y.similarity - x.similarity);
