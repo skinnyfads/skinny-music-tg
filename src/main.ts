@@ -44,6 +44,17 @@ app.telegram.setMyCommands([
   { command: "uptime", description: "check bot alive time" },
   { command: "leave", description: "cancel the current task" },
 ]);
+app.use((ctx, next) => {
+  if (ctx.from) {
+    let userName = ctx.from.first_name;
+
+    if (ctx.from.last_name) {
+      userName += " " + ctx.from.last_name;
+    }
+    console.log(new Date(), userName, deunionize(ctx.message)?.text);
+  }
+  next();
+});
 app.start(async (ctx) => {
   setTimeout(() => ctx.reply("Hai"), 2000);
 });
