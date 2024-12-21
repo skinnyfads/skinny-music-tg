@@ -41,12 +41,38 @@ function getSimilarity(stringX: string, stringY: string) {
   }
   return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength.toFixed(1));
 }
+
+function tokenSimilarity(stringX: string, stringY: string) {
+  const tokenize = (str: string) =>
+    str
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((token) => token.length > 0);
+
+  const tokensX = tokenize(stringX);
+  const tokensY = tokenize(stringY);
+  let matchCount = 0;
+
+  for (const tokenX of tokensX) {
+    for (const tokenY of tokensY) {
+      const similarity = getSimilarity(tokenX, tokenY);
+      if (similarity > 0.8) {
+        matchCount++;
+        break;
+      }
+    }
+  }
+
+  const totalTokens = tokensX.length + tokensY.length;
+  return matchCount / (totalTokens / 2);
+}
+
 function getMatchedMusic(searchResult: TracksV2, query: string) {
   const similarities = searchResult.items.map((item) => {
     const trackResult = item.item.data;
     const trackResultArtists = trackResult.artists.items.map((item) => item.profile.name);
     const result = trackResult.name + " " + trackResultArtists.join(" ");
-    const similarity = getSimilarity(result, query);
+    const similarity = tokenSimilarity(result, query);
 
     return { item, similarity };
   });
