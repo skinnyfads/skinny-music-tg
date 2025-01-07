@@ -199,6 +199,7 @@ app.on("message", async (ctx) => {
           thumb: thumbUrl ? { url: thumbUrl } : undefined,
           duration: audio.duration,
         });
+        delete taskManager[userId];
       } else {
         return ctx.reply("Send me a new title or type /leave to cancel");
       }
@@ -216,6 +217,7 @@ app.on("message", async (ctx) => {
           thumb: thumbUrl ? { url: thumbUrl } : undefined,
           duration: audio.duration,
         });
+        delete taskManager[userId];
       } else {
         return ctx.reply("Send me a new artist name or type /leave to cancel");
       }
