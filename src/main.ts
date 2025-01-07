@@ -5,7 +5,7 @@ import express from "express";
 import spotifyds from "spotifyds-core";
 import { Audio } from "telegraf/types";
 import getPayload from "./fns/getPayload.js";
-import { Message } from "telegraf/typings/core/types/typegram.js";
+import { Message, MessageEntity } from "telegraf/typings/core/types/typegram.js";
 import modifySong from "./fns/modifySong.js";
 import sendProgress from "./fns/sendProgress.js";
 import "dotenv/config";
@@ -221,6 +221,16 @@ app.on("message", async (ctx) => {
       }
     } else {
       return ctx.replyWithSticker("CAACAgUAAxkBAAEMjghkDE3J8Kb1UJmp1lhhuhwXZ0OOOQAC6AQAAvB1mFYmM6DD0xMNtC8E");
+    }
+  } else {
+    if (message.text && !message.text.startsWith("/")) {
+      const command = "/r";
+      const entities: MessageEntity[] = [{ offset: 0, length: command.length, type: "bot_command" }];
+
+      message.text = `${command} ${message.text}`;
+      message.entities = entities;
+
+      await app.handleUpdate({ update_id: ctx.update.update_id++, message });
     }
   }
 });
