@@ -1,0 +1,6 @@
+musics/
+tracks/
+dist/
+node_modules/
+.env
+*.txt
